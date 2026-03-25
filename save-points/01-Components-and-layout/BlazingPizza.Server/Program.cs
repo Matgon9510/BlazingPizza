@@ -2,32 +2,32 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 
-
-
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options => {
         options.JsonSerializerOptions.AddContext<BlazingPizza.OrderContext>();
     });
+
 builder.Services.AddRazorPages();
 
 builder.Services.AddDbContext<PizzaStoreContext>(options =>
-        options.UseSqlite("Data Source=pizza.db"));
-
+    options.UseSqlite("Data Source=pizza.db"));
 
 builder.Services.AddDefaultIdentity<PizzaStoreUser>(options => options.SignIn.RequireConfirmedAccount = true)
-        .AddEntityFrameworkStores<PizzaStoreContext>();
+    .AddEntityFrameworkStores<PizzaStoreContext>();
 
 builder.Services.AddIdentityServer()
-        .AddApiAuthorization<PizzaStoreUser, PizzaStoreContext>();
+    .AddApiAuthorization<PizzaStoreUser, PizzaStoreContext>();
 
 builder.Services.AddAuthentication()
-        .AddIdentityServerJwt();
+    .AddIdentityServerJwt();
+
+// Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
 
 // Initialize the database
 var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
@@ -44,11 +44,13 @@ using (var scope = scopeFactory.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();
+
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 else
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 

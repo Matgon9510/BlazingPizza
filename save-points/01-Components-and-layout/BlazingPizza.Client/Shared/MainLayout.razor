@@ -1,0 +1,27 @@
+﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Authorization
+
+<div class="top-bar">
+    <a href="" class="logo">
+        <img src="img/logo.svg" />
+    </a>
+
+    <NavLink href="" class="nav-tab" Match="NavLinkMatch.All">
+        <img src="img/pizza-slice.svg" />
+        <div>GET PIZZA</div>
+    </NavLink>
+
+    <AuthorizeView>
+        <NavLink href="myorders" class="nav-tab">
+            <img src="img/bike.svg" />
+            <div>MY ORDERS</div>
+        </NavLink>
+    </AuthorizeView>
+
+    <LoginDisplay />
+</div>
+
+<div class="content">
+    @Body
+</div>

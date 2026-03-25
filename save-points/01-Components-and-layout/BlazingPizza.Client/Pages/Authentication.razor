@@ -1,0 +1,31 @@
+﻿@page "/authentication/{action}"
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@inject OrderState OrderState
+
+<RemoteAuthenticatorViewCore TAuthenticationState="PizzaAuthenticationState"
+                             AuthenticationState="RemoteAuthenticationState"
+                             Action="@Action"
+                             OnLogInSucceeded="RestorePizza" />
+
+@code {
+    [Parameter] public string Action { get; set; } = string.Empty;
+
+    public PizzaAuthenticationState RemoteAuthenticationState { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        if (RemoteAuthenticationActions.IsAction(RemoteAuthenticationActions.LogIn, Action))
+        {
+            // Guardar la orden actual antes de redirigir a login
+            RemoteAuthenticationState.Order = OrderState.Order;
+        }
+    }
+
+    private void RestorePizza(PizzaAuthenticationState pizzaState)
+    {
+        if (pizzaState.Order is not null)
+        {
+            OrderState.ReplaceOrder(pizzaState.Order);
+        }
+    }
+}

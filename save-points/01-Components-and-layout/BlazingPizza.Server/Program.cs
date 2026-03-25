@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 
+
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews()
@@ -13,6 +16,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddDbContext<PizzaStoreContext>(options =>
         options.UseSqlite("Data Source=pizza.db"));
 
+
 builder.Services.AddDefaultIdentity<PizzaStoreUser>(options => options.SignIn.RequireConfirmedAccount = true)
         .AddEntityFrameworkStores<PizzaStoreContext>();
 
@@ -23,6 +27,7 @@ builder.Services.AddAuthentication()
         .AddIdentityServerJwt();
 
 var app = builder.Build();
+
 
 // Initialize the database
 var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();

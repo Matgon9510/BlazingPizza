@@ -1,0 +1,92 @@
+﻿@page "/checkout"
+@attribute [Authorize]
+@using BlazingPizza
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@inject OrderState OrderState
+@inject OrdersClient OrdersClient
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+
+
+<PageTitle>Blazing Pizza - Checkout</PageTitle>
+
+<div class="main">
+    <EditForm Model="OrderState.Order.DeliveryAddress" OnValidSubmit="PlaceOrder">
+        <DataAnnotationsValidator />
+
+        <div class="checkout-cols">
+            <div class="checkout-order-details">
+                <h4>Review order</h4>
+                <OrderReview Order="OrderState.Order" />
+            </div>
+
+            <div class="checkout-delivery-address">
+                <h4>Deliver to...</h4>
+                <AddressEditor Address="OrderState.Order.DeliveryAddress" />
+            </div>
+        </div>
+
+        <button type="submit"
+                class="checkout-button btn btn-warning"
+                disabled="@isSubmitting">
+            @(isSubmitting ? "Placing order..." : "Place order")
+        </button>
+    </EditForm>
+</div>
+
+@code {
+    bool isSubmitting;
+
+    protected override void OnInitialized()
+    {
+        // Pedimos permiso para notificaciones en segundo plano
+        _ = RequestNotificationSubscriptionAsync();
+    }
+
+    async Task RequestNotificationSubscriptionAsync()
+    {
+        try
+        {
+            var subscription =
+                await JSRuntime.InvokeAsync<NotificationSubscription>(
+                    "blazorPushNotifications.requestSubscription");
+
+            if (subscription is not null)
+            {
+                await OrdersClient.SubscribeToNotifications(subscription);
+            }
+        }
+        catch (AccessTokenNotAvailableException ex)
+        {
+            ex.Redirect();
+        }
+        catch (JSException)
+        {
+            // Si el navegador no soporta notificaciones o el usuario las bloquea,
+            // simplemente seguimos sin romper nada.
+        }
+    }
+
+    async Task PlaceOrder()
+    {
+        isSubmitting = true;
+
+        try
+        {
+            var newOrderId = await OrdersClient.PlaceOrder(OrderState.Order);
+            OrderState.ResetOrder();
+            NavigationManager.NavigateTo($"myorders/{newOrderId}");
+        }
+        catch (AccessTokenNotAvailableException ex)
+        {
+            ex.Redirect();
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}

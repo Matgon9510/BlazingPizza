@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: blazingpizza-api
-          image: blazingpizzaserver:dev
+          image: blazingpizza-api:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
